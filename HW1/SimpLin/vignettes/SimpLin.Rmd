@@ -14,6 +14,28 @@ knitr::opts_chunk$set(
 )
 ```
 
+In order to use the `SimpLin` package, you should load the library first.
 ```{r setup}
 library(SimpLin)
-```
+```  
+
+And you need a data with one numeric predictor variable and one numeric response variable.
+Of course you can use a real data, but for the simplicity, I will explain this package using a synthetic data which is generated from the following model:
+$$
+Y_{i}=\beta_{0}+\beta_{1}X_{i}+\varepsilon_{i},\ i=1,\cdots,n
+$$
+where $\beta_{0}=1$, $\beta_{1}=-1$, $n=100$, $X_{i}\sim N\left(0,1\right)$ and $\varepsilon_{i}\sim N\left(0,1\right)$.
+```{r}
+n <- 100
+
+x <- rnorm(n)
+y <- 1 - x + rnorm(n)
+```  
+
+Now, you can fit a simple linear regression model for the given synthetic data using `SimpLinR` function in this package.
+```{r}
+fit <- SimpLinR(x, y)
+```  
+You may use your own significance level, such as $0.01$ or $0.1$ and so on. For example, `SimpLinR` will return a result with $95\%$ confidence interval of each regression coefficient by default, but if you use `significance_level = 0.01` as an argument of the function, then it will give you $99\%$ confidence interval.  
+
+Since the fitted result is stored in a `list` structure, you may access to the fitted results by calling the name of object. `fit$coefficients` shows you the coefficient estimates, `fit$residuals` for residuals, `fit$fitted.values` for predicted values, `fit$vcov` for estimated variance covariance matrix, and `fit$confidence.intervals` for confidence interval for each regression coefficient.
