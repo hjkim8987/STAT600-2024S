@@ -70,12 +70,14 @@ arma::mat get_variance_estimate(arma::mat X, double sse, int n){
 // @param estimate double
 // @param sig_level double, significance level (\alpha)
 // @param variance double, estimated variance of the estimate
+// @param df int, degrees of freedom
 // @return confidence interval lower and upper bounds, 2 by 1 numeric vector
 arma::vec get_confidence_interval(double estimate,
                                   double sig_level,
-                                  double variance){
+                                  double variance,
+                                  int df){
   arma::vec ci(2, arma::fill::zeros);
-  double q = R::qnorm(1.0 - sig_level / 2.0, 0.0, 1.0, true, false);
+  double q = R::qt(1.0 - sig_level / 2.0, df, 1, 0);
 
   ci(0) = estimate - q * sqrt(variance);
   ci(1) = estimate + q * sqrt(variance);
@@ -106,7 +108,8 @@ List SimpLinCpp(arma::vec x, arma::vec y, int n, double sig_level){
   arma::mat ci_mat(beta.n_rows, 2, arma::fill::zeros);
   for(int i = 0; i < beta.n_rows; i++){
     ci_mat.col(i) =
-      get_confidence_interval(beta(i), sig_level, sigma2hat(i, i));
+      get_confidence_interval(beta(i),
+                              sig_level, sigma2hat(i, i), n - beta.n_rows);
   }
 
   return List::create(
