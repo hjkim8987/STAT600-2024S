@@ -1,0 +1,225 @@
+---
+title: "STAT 600: Homework 3"
+date: "`r format(Sys.Date(), '%B %d, %Y')`"
+author: "Hyungjoon Kim, Colorado State University"
+output: pdf_document
+---
+
+```{r setup, echo=FALSE}
+knitr::opts_knit$set(root.dir = './',
+                     echo = TRUE,
+                     message = FALSE,
+                     warnings = FALSE)
+```
+
+# Problem 1
+  a) Let $\delta\sim\text{Bernoulli}\left(p\right)$, then we can write the joint distribution of $Y$ and $\delta$ as
+  \begin{equation*}
+    f_{Y,\delta}\left(y_{i},\delta_{i}\mid\boldsymbol{\theta}\right)
+    =\left[pf\left(y_{i}\mid\lambda\right)\right]^{\delta_{i}}\left[\left(1-p\right)f\left(y_{i}\mid\mu\right)\right]^{1-\delta_{i}}
+  \end{equation*}
+  So, the complete log-likelihood function of $\boldsymbol{\theta}=\left(\lambda,\mu,p\right)$ is
+  \begin{equation*}
+    \ell\left(\boldsymbol{\theta}\right)
+    =\sum_{i=1}^{n}\left[\delta_{i}\log f\left(y_{i}\mid\lambda\right)+\delta_{i}\log p+\left(1-\delta_{i}\right)\log f\left(y_{i}\mid\mu\right)+\left(1-\delta_{i}\right)\log\left(1-p\right)\right]
+  \end{equation*}
+  Then, we can find that the conditional distribution of $\delta$ given $Y$ is
+  \begin{equation*}
+    \begin{aligned}
+      f_{\delta\mid Y}\left(\delta_{i}\mid y_{i}\right)
+        &=\frac{f_{Y,\delta}\left(y_{i},\delta_{i}\mid\boldsymbol{\theta}\right)}{f_{Y}\left(y_{i}\mid\boldsymbol{\theta}\right)} \\
+        &=\frac{\left[pf\left(y_{i}\mid\lambda\right)\right]^{\delta_{i}}\left[\left(1-p\right)f\left(y_{i}\mid\mu\right)\right]^{1-\delta_{i}}}{pf\left(y_{i}\mid\lambda\right)+\left(1-p\right)f\left(y_{i}\mid\mu\right)}
+    \end{aligned}
+  \end{equation*}
+  So, $\delta_{i}\mid Y_{i}\sim\text{Bernoulli}\left(w_{i}\right)$, where
+  \begin{equation*}
+    w_{i}
+    =\frac{pf\left(y_{i}\mid\lambda\right)}{pf\left(y_{i}\mid\lambda\right)+\left(1-p\right)f\left(y_{i}\mid\mu\right)}
+  \end{equation*}
+  Thus, consider $\boldsymbol{\theta}^{\left(v\right)}=\left(\lambda^{\left(v\right)},\mu^{\left(v\right)},p^{\left(v\right)}\right)$ be an update of $v$th iteration, then we can obtain $w_{i}^{\left(v\right)}$ by calculating
+  \begin{equation*}
+    w_{i}^{\left(v\right)}
+    =\frac{p^{\left(v\right)}f\left(y_{i}\mid\lambda^{\left(v\right)}\right)}{p^{\left(v\right)}f\left(y_{i}\mid\lambda^{\left(v\right)}\right)+\left(1-p^{\left(v\right)}\right)f\left(y_{i}\mid\mu^{\left(v\right)}\right)}
+  \end{equation*}
+  And we can write the $Q$ function, the expectation of the complete log-likelihood based on $\boldsymbol{\theta}^{\left(v\right)}$, as
+  \begin{equation*}
+    \begin{aligned}
+      Q\left(\boldsymbol{\theta},\boldsymbol{\theta}^{\left(v\right)},\boldsymbol{y}\right)
+      &=\mathbb{E}_{\boldsymbol{\theta}^{\left(v\right)}}\left[\ell\left(\boldsymbol{\theta}\right)\right] \\
+      &=\sum_{i=1}^{n}\left[w_{i}^{\left(v\right)}\log f\left(y_{i}\mid\lambda^{\left(v\right)}\right)+\left(1-w_{i}^{\left(v\right)}\right)\log f\left(y_{i}\mid\mu^{\left(v\right)}\right)+w_{i}^{\left(v\right)}\log p^{\left(v\right)}+\left(1-w_{i}^{\left(v\right)}\right)\log\left(1-p^{\left(v\right)}\right)\right]
+    \end{aligned}
+  \end{equation*}
+  Since $\log f\left(y_{i}\mid\lambda\right)=\log\lambda-\lambda y_{i}$,
+  \begin{equation*}
+    \begin{aligned}
+      Q\left(\boldsymbol{\theta},\boldsymbol{\theta}^{\left(v\right)},\boldsymbol{y}\right)
+      =&\sum_{i=1}^{n}w_{i}^{\left(v\right)}\left(\log\lambda^{\left(v\right)}-\lambda^{\left(v\right)}y_{i}\right) \\
+      &+\sum_{i=1}^{n}\left(1-w_{i}^{\left(v\right)}\right)\left(\log\mu^{\left(v\right)}-\mu^{\left(v\right)}y_{i}\right) \\
+      &+\sum_{i=1}^{n}\left[w_{i}^{\left(v\right)}\log p^{\left(v\right)}+\left(1-w_{i}^{\left(v\right)}\right)\log\left(1-p^{\left(v\right)}\right)\right]
+    \end{aligned}
+  \end{equation*}
+  
+  b) Note that
+  \begin{equation*}
+    \begin{aligned}
+      \frac{\partial}{\partial\lambda^{\left(v\right)}}Q\left(\boldsymbol{\theta},\boldsymbol{\theta}^{\left(v\right)},\boldsymbol{y}\right)
+      &=\sum_{i=1}^{n}w_{i}^{\left(v\right)}\left(\frac{1}{\lambda^{\left(v\right)}}-y_{i}\right)\stackrel{\text{set}}{=}0 \\
+      \frac{\partial}{\partial\mu^{\left(v\right)}}Q\left(\boldsymbol{\theta},\boldsymbol{\theta}^{\left(v\right)},\boldsymbol{y}\right)
+      &=\sum_{i=1}^{n}\left(1-w_{i}^{\left(v\right)}\right)\left(\frac{1}{\mu^{\left(v\right)}}-y_{i}\right)\stackrel{\text{set}}{=}0 \\
+      \frac{\partial}{\partial p^{\left(v\right)}}Q\left(\boldsymbol{\theta},\boldsymbol{\theta}^{\left(v\right)},\boldsymbol{y}\right)
+      &=\sum_{i=1}^{n}\left(\frac{w_{i}^{\left(v\right)}}{p^{\left(v\right)}}-\frac{1-w_{i}^{\left(v\right)}}{1-p^{\left(v\right)}}\right)\stackrel{\text{set}}{=}0
+    \end{aligned}
+  \end{equation*}
+  Solving the equations above, we can obtain
+  \begin{equation*}
+    \begin{aligned}
+      \lambda^{\left(v+1\right)}&=\frac{\sum_{i=1}^{n}w_{i}^{\left(v\right)}}{\sum_{i=1}^{n}w_{i}^{\left(v\right)}y_{i}} \\
+      \mu^{\left(v+1\right)}&=\frac{\sum_{i=1}^{n}\left(1-w_{i}^{\left(v\right)}\right)}{\sum_{i=1}^{n}\left(1-w_{i}^{\left(v\right)}\right)y_{i}} \\
+      p^{\left(v+1\right)}&=\frac{\sum_{i=1}^{n}w_{i}^{\left(v\right)}}{n}
+    \end{aligned}
+  \end{equation*}
+  Therefore, starting with $\lambda^{\left(0\right)}$, $\mu^{\left(0\right)}$, and $p^{\left(0\right)}$, we can update each value iteratively using formulae above.
+
+# Problem 2
+I attach a function `exponential_mixture_EM` in `Rcpp` below:  
+```{r, engine="Rcpp", eval=TRUE, echo=TRUE}
+#include <RcppArmadillo.h>
+// [[Rcpp::depends(RcppArmadillo)]]
+
+using namespace Rcpp;
+
+// [[Rcpp::export]]
+NumericVector exponential_mixture_EM(NumericVector y,
+                                     NumericVector inits,
+                                     double tol = 1e-4,
+                                     int max_iter = 1000){
+  double n = (double)y.size();
+  double err = 0.0;
+
+  NumericVector curr(3);
+  NumericVector new_val(3);
+  
+  NumericVector a(n, 0);
+  NumericVector b(n, 0);
+  NumericVector w(n, 0);
+  
+  curr = inits;
+  for(int i = 0; i < max_iter; i++){
+    a = curr(0) * dexp(y, 1.0 / curr(1));
+    b = (1.0 - curr(0)) * dexp(y, 1.0 / curr(2));
+    w = a / (a + b);
+
+    new_val(0) = sum(w) / n;
+    new_val(1) = sum(w) / sum(w * y);
+    new_val(2) = sum(1.0 - w) / sum((1.0 - w) * y);
+
+    err = sqrt(sum(pow(new_val - curr, 2.0)));
+
+    curr = new_val;
+
+    if(err < tol){
+      break;
+    }
+  }
+
+  return(curr);
+}
+```  
+
+
+# Problem 3
+I generated $n=100$ observations from the true distribution with $\boldsymbol{\theta}=\left(p,\lambda,\mu\right)=\left(0.25,1,2\right)$ $100$ times and stored them in a list `y`. To make it reproducible, I set a seed number.
+```{r, echo=TRUE}
+generate_data <- function(n, p, lambda, mu){
+  y <- numeric(n)
+  for(i in 1:n){
+    if(runif(1) < p){
+      y[i] <- rexp(1, rate = lambda)
+    }else{
+      y[i] <- rexp(1, rate = mu)
+    }
+  }
+  return(y)
+}
+
+set.seed(2024)
+
+n <- 100
+p <- 0.25
+lambda <- 1
+mu <- 2
+
+nsim <- 100
+y <- list()
+for(i in 1:nsim){
+  y[[i]] <- generate_data(n, p, lambda, mu)
+}
+```  
+
+# Problem 4
+Using EM algorithm, I estimated $p$, $\lambda$, and $\mu$ $100$ times using $100$ simulated datasets. The average of estimates are $0.1997$, $1.2992$, and $1.7199$ respectively. 
+```{r, echo=TRUE}
+res <- data.frame(matrix(nrow = nsim, ncol = 3))
+colnames(res) <- c("p", "lambda", "mu")
+for(i in 1:nsim){
+  res[i, ] <- exponential_mixture_EM(y[[i]],
+                                     c(0.2, 0.5, 1.5))
+}
+
+res <- rbind(round(colMeans(res), 4),
+             round(apply(res, 2, sd), 4))
+rownames(res) <- c("Mean", "StDev")
+res
+```  
+
+# Problem 5
+I used bootstrap to estimate the standard errors of the parameter estimates. Using the last synthetic data I created in the problem 2, I took a sample of size $100$ with replacement, and estimated parameters using EM algorithm. The number of bootstrap samples are $10,000$, so I obtained $10,000$ sets of parameters, and calculated standard errors using those parameter estimates. The bootstrap standard errors of $\hat{p}$, $\hat{\lambda}$, and $\hat{\mu}$ are $0.003$, $0.1865$, and $0.1364$ respectively.  
+```{r, echo=TRUE}
+y100 <- y[[100]]
+res_y100 <- exponential_mixture_EM(y100, c(0.2, 0.5, 1.5))
+
+res_boot <- data.frame(matrix(nrow = 10000, ncol = 3))
+colnames(res_boot) <- c("p", "lambda", "mu")
+for(i in 1:10000){
+  y_bootstrap <- sample(y100, n, replace = TRUE)
+  res_boot[i, ] <- exponential_mixture_EM(y_bootstrap, res_y100)
+}
+res_boot <- rbind(round(apply(res_boot, 2, mean), 4),
+                  round(sqrt(apply(res_boot, 2, var) * 9999 / 10000), 4))
+rownames(res_boot) <- c("EM Estimates", "SE (Bootstrap)")
+res_boot
+```
+
+# Problem 6
+Using $100$ samples generated in the problem 3, I calculated EM estimates and bootstrap standard error for each sample. As we know the parameter, $\left(0.25, 1, 2\right)$, I calculated bias by subtracting the parameter vector from the estimates vector. To obtain $95%$ confidence intervals for the parameters, I constructed percentile bootstrap confidence intervals using the same bootstrap estimates which are used to calculate bootstrap standard errors. Then using such confidence intervals, I checked whether a confidence interval captures the parameter or not. The average estimates, bias, and standard error is attached below, and I could find that there is a systematic bias of each estimate, and in my opinion, it caused low coverage rates of confidence intervals.
+```{r, echo=TRUE}
+nboot <- 10000
+params <- c(p, lambda, mu)
+estimates <- data.frame(matrix(nrow = nsim, ncol = 3))
+ses <- data.frame(matrix(nrow = nsim, ncol = 3))
+res_boot <- data.frame(matrix(nrow = nboot, ncol = 3))
+coverage <- data.frame(matrix(nrow = nsim, ncol = 3))
+for(i in 1:nsim){
+  estimates_each <- exponential_mixture_EM(y[[i]], c(0.2, 0.5, 1.5))
+  for(b in 1:nboot){
+    y_bootstrap <- sample(y[[i]], n, replace = TRUE)
+    res_boot[b, ] <- exponential_mixture_EM(y_bootstrap, estimates_each)
+  }
+  estimates[i, ] <- estimates_each
+  ses[i, ] <- sqrt(apply(res_boot, 2, var) * (nboot - 1) / nboot)
+  for(l in 1:3){
+    ci <- quantile(res_boot[, l], probs = c(0.025, 0.975))
+    coverage[i, l] <- (ci[1] <= params[l]) & (ci[2] >= params[l])
+  }
+}
+bias <- estimates - matrix(rep(c(p, lambda, mu), nsim),
+                           nrow = nsim, byrow = TRUE)
+
+res6 <- rbind(apply(estimates, 2, mean),
+              apply(bias, 2, mean),
+              apply(ses, 2, mean),
+              apply(coverage, 2, mean))
+rownames(res6) <- c("Estimate", "Bias", "SE", "Coverage")
+colnames(res6) <- c("$$p$$", "$$\\lambda$$", "$$\\mu$$")
+knitr::kable(round(res6, 4), caption = "Simulation Results")
+```
